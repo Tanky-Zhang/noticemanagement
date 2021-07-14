@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zzg.mapper.UserMapper">
+
+    <select id="findByuserName" parameterType="String" resultType="map">
+       SELECT
+	      USERNAME,
+	      PASSWORD
+       FROM
+	      T_USER
+       WHERE
+	      USERNAME = #{userName}
+    </select>
+    
+    <select id="getPermission" parameterType="map" resultType="String">
+
+        SELECT
+            PERMISSION
+        FROM
+            T_USER U,
+            SYS_ROLE_RESOURCE B,
+            SYS_RESOURCE C
+         WHERE
+            U.ROLEID=B.ROLEID
+            AND
+            B.RESOURCEID=C.RESOURCEID
+            AND
+            U.PASSWORD=#{PASSWORD}
+            AND
+            U.USERNAME=#{USERNAME}
+    </select>
+    
+    <select id="getUserName" resultType="map" parameterType="String">
+        SELECT
+           USERNAME,
+           PASSWORD
+        FROM
+           T_USER
+        WHERE
+           USERNAME=#{username}
+
+    </select>
+    
+    <insert id="registUser" parameterType="map">
+
+        INSERT INTO
+                T_USER
+               (USERID,USERNAME,PASSWORD,ROLEID)
+                VALUES
+               (#{ID},#{USERNAME},#{PASSWORD},'admin')/*默认是admin的角色*/
+
+    </insert>
+
+    <select id="getUsers" resultType="map">
+        SELECT
+           A.USERID,
+           A.USERNAME,
+           A.ROLEID,
+           B.ROLENAME
+        FROM
+           T_USER A,
+           SYS_ROLE B
+        WHERE
+           A.ROLEID=B.ROLEID
+          AND
+           A.ROLEID!='superadmin'
+    </select>
+    
+    <update id="givePer" parameterType="String" >
+       UPDATE
+         T_USER
+        SET
+         ROLEID='superadmin'
+
+        WHERE
+         USERID
+        IN
+        <foreach collection="array" item="ids" open="(" close=")" separator=",">
+
+         #{ids}
+
+        </foreach>
+    </update>
+    
+    <update id="updatePass" parameterType="map" >
+
+        UPDATE
+           T_USER
+         SET
+           PASSWORD=#{PASSWORD}
+        WHERE
+           USERNAME=#{USERNAME}
+
+    </update>
+
+</mapper>
